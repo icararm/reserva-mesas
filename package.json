@@ -1,0 +1,24 @@
+{
+  "name": "reserva-mesas",
+  "version": "1.0.0",
+  "description": "Projeto que consiste em criar uma aplicação cliente servidor para reserva de mesas em um restaurante.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/icararm/reserva-mesas.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/icararm/reserva-mesas/issues"
+  },
+  "homepage": "https://github.com/icararm/reserva-mesas#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
