@@ -1,10 +1,27 @@
-import express from 'express';
+import express from "express";
+
 const app = express();
+const port = 3000;
 
-app.get("/", async (Request, Response) =>{
-    Response.send("Página inicial");
+app.get("/", (req, res) => {
+  res.send("Servidor rodando");
 });
 
-app.listen(8080, () => {
-    console.log("Servidor iniciado na porta 8080: http://localhost:8080");
+app.listen(port, () => {
+  console.log(`Servidor rodando em http://localhost:${port}`);
 });
+
+app.get('/clientes', (req, res) => {
+    res.json([
+      { id: 1, nome: 'João' },
+      { id: 2, nome: 'Maria' }
+    ]);
+  });
+
+  app.get('/mesas', (req, res) => {
+    res.json([
+      { id: 1, lugares: 4 },
+      { id: 2, lugares: 2 }
+    ]);
+  });
+  
