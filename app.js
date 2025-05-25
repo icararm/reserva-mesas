@@ -1,28 +1,22 @@
-import express from "express";
-import routerReserva from "./routers/reservaRoute.js"; 
-import routerConfirmacoes from "./routers/confirmacaoRoute.js";
-import routerRelatorio from "./routers/relatorioRoute.js";
-import routerMesa from "./routers/mesaRoute.js";
-import routerUsuario from "./routers/usuarioRoute.js";
+import express from 'express';
+import mesasRoutes from './routes/mesasRoutes.js';
+import relatoriosRoutes from './routes/relatoriosRoutes.js';
+import reservasRoutes from './routes/reservasRoutes.js';
+import usuariosRoutes from './routes/usuariosRoutes.js';
 
 const app = express();
-const port = 3000;
 
 app.use(express.json());
 
-// Importa e usa as rotas
-app.use(routerReserva);
-app.use(routerConfirmacoes);
-app.use(routerRelatorio);
-app.use(routerMesa);
-app.use(routerUsuario);
+app.use('/mesas', mesasRoutes);      
+app.use('/reservas', reservasRoutes); 
+app.use('/usuarios', usuariosRoutes); 
+app.use('/relatorios', relatoriosRoutes); 
 
-app.get("/", (req, res) => {
-  res.send("Servidor rodando");
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
 
-app.listen(port, () => {
-  console.log(`Servidor rodando em http://localhost:${port}`);
-});
 
   
