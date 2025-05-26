@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Atendente - Reservas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    h1, h2 {
+      margin-bottom: 20px;
+    }
+    button, input, select {
+      padding: 8px;
+      margin: 5px 0;
+      width: 100%;
+      max-width: 300px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+    th {
+      background-color: #eee;
+    }
+    .actions button {
+      margin-right: 5px;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+    #mesa-form {
+      display: none;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Título e Navegação -->
+    <h1>Área do Atendente</h1>
+    <button onclick="location.href='index.html'">Voltar para o Início</button>
+
+    <!-- Reservas -->
+    <section>
+      <h2>Reservas Agendadas</h2>
+      <table id="reservas-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Mesa</th>
+            <th>Data</th>
+            <th>Horário</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Mesas Disponíveis Hoje -->
+    <section>
+      <h2>Mesas Disponíveis Hoje</h2>
+      <table id="mesas-disponiveis">
+        <thead>
+          <tr>
+            <th>Número</th>
+            <th>Capacidade</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Formulário para Criar/Editar Reserva -->
+    <section>
+      <h2>Criar ou Editar Reserva</h2>
+      <form id="reserva-form">
+        <input type="hidden" id="reserva-id" />
+        <input type="text" id="cliente" placeholder="Nome do cliente" required />
+        <input type="number" id="mesa_id" placeholder="ID da mesa" required />
+        <input type="date" id="data_reserva" required />
+        <input type="time" id="horario_inicio" required />
+        <button type="submit">Salvar Reserva</button>
+      </form>
+    </section>
+
+    <!-- Gerenciar Mesas -->
+    <section>
+      <h2>Gerenciar Mesas</h2>
+      <button onclick="mostrarFormularioMesa()">Criar Mesa</button>
+
+      <table id="mesas-gerenciadas">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Número</th>
+            <th>Capacidade</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <form id="mesa-form">
+        <input type="hidden" id="mesa-id" />
+        <input type="number" id="numero" placeholder="Número da mesa" required />
+        <input type="number" id="capacidade" placeholder="Capacidade" required />
+        <button type="submit">Salvar Mesa</button>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    // URLs para chamadas ao backend
+    const reservasUrl = 'http://localhost:3000/reservas';
+    const mesasUrl = 'http://localhost:3000/mesas';
+
+    // FUNÇÃO: Buscar todas as reservas
+    async function fetchReservas() {
+      try {
+        const res = await fetch(reservasUrl);
+        const data = await res.json();
+        const tbody = document.querySelector('#reservas-table tbody');
+        tbody.innerHTML = '';
+
+        data.forEach(r => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${r.id}</td>
+            <td>${r.cliente}</td>
+            <td>${r.mesa_id}</td>
+            <td>${r.data_reserva}</td>
+            <td>${r.horario_inicio}</td>
+            <td class="actions">
+              <button onclick="editReserva(${r.id})">Editar</button>
+              <button onclick="deleteReserva(${r.id})">Excluir</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (error) {
+        console.error('Erro ao buscar reservas:', error);
+      }
+    }
+
+    // FUNÇÃO: Buscar mesas disponíveis hoje (mesas não reservadas para o dia atual)
+    async function fetchMesasDisponiveis() {
+      try {
+        const mesasRes = await fetch(mesasUrl);
+        const reservasRes = await fetch(reservasUrl);
+
+        const mesas = await mesasRes.json();
+        const reservas = await reservasRes.json();
+
+        const hoje = new Date().toISOString().split('T')[0];
+        const mesasReservadasHoje = reservas
+          .filter(r => r.data_reserva === hoje)
+          .map(r => r.mesa_id);
+
+        const tbody = document.querySelector('#mesas-disponiveis tbody');
+        tbody.innerHTML = '';
+
+        mesas
+          .filter(m => !mesasReservadasHoje.includes(m.id))
+          .forEach(m => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${m.numero}</td><td>${m.capacidade}</td>`;
+            tbody.appendChild(tr);
+          });
+      } catch (error) {
+        console.error('Erro ao buscar mesas disponíveis:', error);
+      }
+    }
+
+    // FUNÇÃO: Buscar todas mesas para gerenciamento
+    async function fetchMesasGerenciadas() {
+      try {
+        const res = await fetch(mesasUrl);
+        const mesas = await res.json();
+        const tbody = document.querySelector('#mesas-gerenciadas tbody');
+        tbody.innerHTML = '';
+
+        mesas.forEach(m => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${m.id}</td>
+            <td>${m.numero}</td>
+            <td>${m.capacidade}</td>
+            <td>
+              <button onclick="editMesa(${m.id})">Editar</button>
+              <button onclick="deleteMesa(${m.id})">Excluir</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (error) {
+        console.error('Erro ao buscar mesas gerenciadas:', error);
+      }
+    }
+
+    // FUNÇÃO: Editar reserva (preenche o formulário com dados existentes)
+    async function editReserva(id) {
+      try {
+        const res = await fetch(`${reservasUrl}/${id}`);
+        if (!res.ok) throw new Error('Reserva não encontrada');
+        const r = await res.json();
+
+        document.getElementById('reserva-id').value = r.id;
+        document.getElementById('cliente').value = r.cliente;
+        document.getElementById('mesa_id').value = r.mesa_id;
+        document.getElementById('data_reserva').value = r.data_reserva;
+        document.getElementById('horario_inicio').value = r.horario_inicio;
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    // FUNÇÃO: Excluir reserva
+    async function deleteReserva(id) {
+      if (!confirm('Excluir esta reserva?')) return;
+      try {
+        const res = await fetch(`${reservasUrl}/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Falha ao excluir reserva');
+        await fetchReservas();
+        await fetchMesasDisponiveis();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    // Evento submit do formulário de reserva (criar ou editar)
+    document.getElementById('reserva-form').addEventListener('submit', async e => {
+      e.preventDefault();
+
+      const id = document.getElementById('reserva-id').value;
+      const data = {
+        cliente: document.getElementById('cliente').value,
+        mesa_id: parseInt(document.getElementById('mesa_id').value),
+        data_reserva: document.getElementById('data_reserva').value,
+        horario_inicio: document.getElementById('horario_inicio').value,
+        // status e atendente_id podem ser adicionados se necessário
+      };
+
+      try {
+        if (id) {
+          const res = await fetch(`${reservasUrl}/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          if (!res.ok) throw new Error('Erro ao atualizar reserva');
+        } else {
+          const res = await fetch(reservasUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          if (!res.ok) throw new Error('Erro ao criar reserva');
+        }
+
+        e.target.reset();
+        document.getElementById('reserva-id').value = '';
+        await fetchReservas();
+        await fetchMesasDisponiveis();
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+
+    // Mostrar/ocultar formulário de mesa
+    function mostrarFormularioMesa() {
+      const form = document.getElementById('mesa-form');
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // FUNÇÃO: Editar mesa
+    async function editMesa(id) {
+      try {
+        const res = await fetch(`${mesasUrl}/${id}`);
+        if (!res.ok) throw new Error('Mesa não encontrada');
+        const mesa = await res.json();
+
+        document.getElementById('mesa-id').value = mesa.id;
+        document.getElementById('numero').value = mesa.numero;
+        document.getElementById('capacidade').value = mesa.capacidade;
+        document.getElementById('mesa-form').style.display = 'block';
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    // FUNÇÃO: Excluir mesa
+    async function deleteMesa(id) {
+      if (!confirm('Deseja excluir esta mesa?')) return;
+      try {
+        const res = await fetch(`${mesasUrl}/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Falha ao excluir mesa');
+        await fetchMesasGerenciadas();
+        await fetchMesasDisponiveis();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    // Evento submit do formulário de mesa (criar ou editar)
+    document.getElementById('mesa-form').addEventListener('submit', async e => {
+      e.preventDefault();
+
+      const id = document.getElementById('mesa-id').value;
+      const mesa = {
+        numero: parseInt(document.getElementById('numero').value),
+        capacidade: parseInt(document.getElementById('capacidade').value)
+      };
+
+      try {
+        if (id) {
+          const res = await fetch(`${mesasUrl}/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(mesa)
+          });
+          if (!res.ok) throw new Error('Erro ao atualizar mesa');
+        } else {
+          const res = await fetch(mesasUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(mesa)
+          });
+          if (!res.ok) throw new Error('Erro ao criar mesa');
+        }
+
+        e.target.reset();
+        document.getElementById('mesa-id').value = '';
+        document.getElementById('mesa-form').style.display = 'none';
+
+        await fetchMesasGerenciadas();
+        await fetchMesasDisponiveis();
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+
+    // Carregar dados ao iniciar a página
+    fetchReservas();
+    fetchMesasDisponiveis();
+    fetchMesasGerenciadas();
+  </script>
+</body>
+</html>

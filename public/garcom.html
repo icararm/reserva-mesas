@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Garçom - Reservas do Dia</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    button {
+      padding: 8px 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Reservas do Dia - Garçom</h1>
+  <table id="tabela-reservas">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Cliente</th>
+        <th>Mesa</th>
+        <th>Horário</th>
+        <th>Status Mesa</th>
+        <th>Ação</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const reservasUrl = 'http://localhost:3000/reservas';
+    const mesasUrl = 'http://localhost:3000/mesas';
+
+    async function carregarReservasDoDia() {
+      const [resReservas, resMesas] = await Promise.all([
+        fetch(reservasUrl),
+        fetch(mesasUrl)
+      ]);
+
+      const reservas = await resReservas.json();
+      const mesas = await resMesas.json();
+
+      const hoje = new Date().toISOString().split('T')[0];
+      const reservasHoje = reservas.filter(r => r.data_reserva === hoje);
+
+      const tbody = document.querySelector('#tabela-reservas tbody');
+      tbody.innerHTML = '';
+
+      reservasHoje.forEach(reserva => {
+        const mesa = mesas.find(m => m.id === reserva.mesa_id);
+        const statusMesa = mesa?.status || 'desconhecido';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${reserva.id}</td>
+          <td>${reserva.cliente}</td>
+          <td>${reserva.mesa_id}</td>
+          <td>${reserva.horario_inicio}</td>
+          <td>${statusMesa}</td>
+          <td>
+            ${statusMesa === 'ocupada'
+              ? 'Já ocupada'
+              : `<button onclick="confirmarChegada(${mesa.id})">Confirmar Chegada</button>`}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function confirmarChegada(mesaId) {
+      const atualizar = await fetch(`${mesasUrl}/${mesaId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'ocupada' })
+      });
+
+      if (atualizar.ok) {
+        alert('Mesa confirmada como ocupada.');
+        carregarReservasDoDia();
+      } else {
+        alert('Erro ao confirmar a chegada.');
+      }
+    }
+
+    carregarReservasDoDia();
+  </script>
+</body>
+</html>

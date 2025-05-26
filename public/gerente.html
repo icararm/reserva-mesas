@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gerente - Relatório de Reservas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    h1, h2 {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input, select, button {
+      padding: 8px;
+      margin: 5px 0 10px;
+      width: 100%;
+      max-width: 300px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Painel do Gerente</h1>
+
+  <h2>Filtros de Reservas</h2>
+  <label for="data-inicio">Data Início:</label>
+  <input type="date" id="data-inicio" />
+
+  <label for="data-fim">Data Fim:</label>
+  <input type="date" id="data-fim" />
+
+  <label for="mesa-select">Filtrar por Mesa:</label>
+  <select id="mesa-select">
+    <option value="">Todas as Mesas</option>
+  </select>
+
+  <label>
+    <input type="checkbox" id="apenas-confirmadas" />
+    Mostrar apenas mesas confirmadas (ocupadas)
+  </label>
+
+  <button onclick="buscarReservas()">Buscar Reservas</button>
+
+  <table id="tabela-reservas">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Cliente</th>
+        <th>Mesa</th>
+        <th>Data</th>
+        <th>Horário</th>
+        <th>Status Mesa</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const reservasUrl = 'http://localhost:3000/reservas';
+    const mesasUrl = 'http://localhost:3000/mesas';
+
+    let todasMesas = [];
+
+    async function carregarMesas() {
+      const res = await fetch(mesasUrl);
+      todasMesas = await res.json();
+
+      const select = document.getElementById('mesa-select');
+      todasMesas.forEach(mesa => {
+        const option = document.createElement('option');
+        option.value = mesa.id;
+        option.textContent = `Mesa ${mesa.numero}`;
+        select.appendChild(option);
+      });
+    }
+
+    async function buscarReservas() {
+      const resReservas = await fetch(reservasUrl);
+      const reservas = await resReservas.json();
+
+      const dataInicio = document.getElementById('data-inicio').value;
+      const dataFim = document.getElementById('data-fim').value;
+      const mesaSelecionada = document.getElementById('mesa-select').value;
+      const apenasConfirmadas = document.getElementById('apenas-confirmadas').checked;
+
+      const tbody = document.querySelector('#tabela-reservas tbody');
+      tbody.innerHTML = '';
+
+      reservas.forEach(reserva => {
+        const mesa = todasMesas.find(m => m.id === reserva.mesa_id);
+        if (!mesa) return;
+
+        const statusMesa = mesa.status || 'desconhecido';
+
+        const dentroDoPeriodo =
+          (!dataInicio || reserva.data_reserva >= dataInicio) &&
+          (!dataFim || reserva.data_reserva <= dataFim);
+
+        const mesaFiltrada = !mesaSelecionada || reserva.mesa_id == mesaSelecionada;
+        const confirmada = !apenasConfirmadas || statusMesa === 'ocupada';
+
+        if (dentroDoPeriodo && mesaFiltrada && confirmada) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${reserva.id}</td>
+            <td>${reserva.cliente}</td>
+            <td>${mesa.numero}</td>
+            <td>${reserva.data_reserva}</td>
+            <td>${reserva.horario_inicio}</td>
+            <td>${statusMesa}</td>
+          `;
+          tbody.appendChild(tr);
+        }
+      });
+    }
+
+    // Inicializa a página
+    carregarMesas();
+  </script>
+</body>
+</html>
