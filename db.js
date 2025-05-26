@@ -22,14 +22,23 @@ db.serialize(() => {
     )
   `);
 
-  // Tabela de mesas
-  db.run(`
-    CREATE TABLE IF NOT EXISTS mesas (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      numero INTEGER NOT NULL UNIQUE,
-      capacidade INTEGER NOT NULL
-    )
-  `);
+  db.serialize(() => {
+    db.run("ALTER TABLE mesas RENAME TO mesas_antiga");
+    db.run(`
+      CREATE TABLE mesas (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        capacidade INTEGER NOT NULL
+      )
+    `);
+    db.run(`
+      INSERT INTO mesas (id, capacidade)
+      SELECT id, capacidade FROM mesas_antiga
+    `);
+    db.run("DROP TABLE mesas_antiga");
+  });
+
+
+
 
   // Tabela de reservas
   db.run(`

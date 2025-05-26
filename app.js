@@ -5,7 +5,6 @@ import reservasRoutes from './routes/reservasRoutes.js';
 import usuariosRoutes from './routes/usuariosRoutes.js';
 
 const app = express();
-
 app.use(express.json());
 
 app.use('/mesas', mesasRoutes);      

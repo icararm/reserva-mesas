@@ -2,64 +2,28 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gerente - Relatório de Reservas</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 40px;
-    }
-    h1, h2 {
-      margin-bottom: 20px;
-    }
-    label {
-      display: block;
-      margin-top: 10px;
-    }
-    input, select, button {
-      padding: 8px;
-      margin: 5px 0 10px;
-      width: 100%;
-      max-width: 300px;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-  </style>
+  <title>Relatório de Reservas</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <h1>Painel do Gerente</h1>
+  <h1>Painel do Gerente - Relatórios de Reservas</h1>
 
-  <h2>Filtros de Reservas</h2>
-  <label for="data-inicio">Data Início:</label>
-  <input type="date" id="data-inicio" />
+  <div>
+    <label for="data-inicio">Data Início:</label>
+    <input type="date" id="data-inicio" />
 
-  <label for="data-fim">Data Fim:</label>
-  <input type="date" id="data-fim" />
+    <label for="data-fim">Data Fim:</label>
+    <input type="date" id="data-fim" />
 
-  <label for="mesa-select">Filtrar por Mesa:</label>
-  <select id="mesa-select">
-    <option value="">Todas as Mesas</option>
-  </select>
+    <label for="mesa-select">Filtrar por Mesa:</label>
+    <select id="mesa-select">
+      <option value="">Todas as Mesas</option>
+    </select>
 
-  <label>
-    <input type="checkbox" id="apenas-confirmadas" />
-    Mostrar apenas mesas confirmadas (ocupadas)
-  </label>
+    <button id="btn-buscar">Buscar Reservas</button>
+  </div>
 
-  <button onclick="buscarReservas()">Buscar Reservas</button>
-
-  <table id="tabela-reservas">
+  <table>
     <thead>
       <tr>
         <th>ID</th>
@@ -67,72 +31,115 @@
         <th>Mesa</th>
         <th>Data</th>
         <th>Horário</th>
-        <th>Status Mesa</th>
+        <th>Status</th>
       </tr>
     </thead>
-    <tbody></tbody>
+    <tbody id="tabela-reservas-body"></tbody>
   </table>
 
   <script>
-    const reservasUrl = 'http://localhost:3000/reservas';
-    const mesasUrl = 'http://localhost:3000/mesas';
+    // URLs da API
+    const mesasUrl = '/mesas';
+    const reservasPeriodoUrl = '/reservas/periodo';
+    const reservasMesaUrl = '/reservas/mesa';
 
-    let todasMesas = [];
+    // Elementos do DOM
+    const mesaSelect = document.getElementById('mesa-select');
+    const btnBuscar = document.getElementById('btn-buscar');
+    const tbody = document.getElementById('tabela-reservas-body');
 
-    async function carregarMesas() {
-      const res = await fetch(mesasUrl);
-      todasMesas = await res.json();
+    let mesas = [];
 
-      const select = document.getElementById('mesa-select');
-      todasMesas.forEach(mesa => {
-        const option = document.createElement('option');
-        option.value = mesa.id;
-        option.textContent = `Mesa ${mesa.numero}`;
-        select.appendChild(option);
-      });
+    // Função para converter 'aaaa-mm-dd' para 'dd/mm/aaaa'
+    function formatDateToBR(dateStr) {
+      const [year, month, day] = dateStr.split('-');
+      return `${day}/${month}/${year}`;
     }
 
+    // Carrega as mesas e preenche o select
+    async function carregarMesas() {
+      try {
+        const res = await fetch(mesasUrl);
+        if (!res.ok) throw new Error(`Erro ao buscar mesas: ${res.status}`);
+        mesas = await res.json();
+
+        mesas.forEach(mesa => {
+          const option = document.createElement('option');
+          option.value = mesa.id;
+          option.textContent = `Mesa ${mesa.id} (Capacidade: ${mesa.capacidade})`;
+          mesaSelect.appendChild(option);
+        });
+      } catch (err) {
+        alert('Erro ao carregar mesas');
+        console.error(err);
+      }
+    }
+
+    // Função principal para buscar reservas
     async function buscarReservas() {
-      const resReservas = await fetch(reservasUrl);
-      const reservas = await resReservas.json();
-
-      const dataInicio = document.getElementById('data-inicio').value;
-      const dataFim = document.getElementById('data-fim').value;
-      const mesaSelecionada = document.getElementById('mesa-select').value;
-      const apenasConfirmadas = document.getElementById('apenas-confirmadas').checked;
-
-      const tbody = document.querySelector('#tabela-reservas tbody');
       tbody.innerHTML = '';
 
-      reservas.forEach(reserva => {
-        const mesa = todasMesas.find(m => m.id === reserva.mesa_id);
-        if (!mesa) return;
+      let inicio = document.getElementById('data-inicio').value;
+      let fim = document.getElementById('data-fim').value;
+      const mesaId = mesaSelect.value;
 
-        const statusMesa = mesa.status || 'desconhecido';
+      // Converte para formato 'dd/mm/aaaa' para backend
+      if (inicio) inicio = formatDateToBR(inicio);
+      if (fim) fim = formatDateToBR(fim);
 
-        const dentroDoPeriodo =
-          (!dataInicio || reserva.data_reserva >= dataInicio) &&
-          (!dataFim || reserva.data_reserva <= dataFim);
+      if (inicio && fim) {
+        const url = `${reservasPeriodoUrl}?inicio=${encodeURIComponent(inicio)}&fim=${encodeURIComponent(fim)}`;
+        await buscarEExibirReservas(url);
+        return;
+      }
 
-        const mesaFiltrada = !mesaSelecionada || reserva.mesa_id == mesaSelecionada;
-        const confirmada = !apenasConfirmadas || statusMesa === 'ocupada';
+      if (mesaId) {
+        const url = `${reservasMesaUrl}/${mesaId}`;
+        await buscarEExibirReservas(url);
+        return;
+      }
 
-        if (dentroDoPeriodo && mesaFiltrada && confirmada) {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${reserva.id}</td>
-            <td>${reserva.cliente}</td>
-            <td>${mesa.numero}</td>
-            <td>${reserva.data_reserva}</td>
-            <td>${reserva.horario_inicio}</td>
-            <td>${statusMesa}</td>
-          `;
-          tbody.appendChild(tr);
-        }
-      });
+      alert('Por favor, selecione um período (data início e fim) ou uma mesa para buscar.');
     }
 
-    // Inicializa a página
+    // Busca dados da API e exibe na tabela
+    async function buscarEExibirReservas(url) {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) {
+          console.error('Resposta da API não OK:', res.status, res.statusText);
+          throw new Error('Erro na resposta da API');
+        }
+        const reservas = await res.json();
+        console.log('Reservas recebidas:', reservas);
+
+        if (!reservas || reservas.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6">Nenhuma reserva encontrada.</td></tr>';
+          return;
+        }
+
+        reservas.forEach(r => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${r.id}</td>
+            <td>${r.cliente}</td>
+            <td>${r.mesa_id}</td>
+            <td>${r.data_reserva}</td>
+            <td>${r.horario_inicio}</td>
+            <td>${r.status || '-'}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        alert('Erro ao buscar reservas');
+        console.error(err);
+      }
+    }
+
+    // Eventos
+    btnBuscar.addEventListener('click', buscarReservas);
+
+    // Inicializa carregando as mesas
     carregarMesas();
   </script>
 </body>

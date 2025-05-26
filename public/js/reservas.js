@@ -38,3 +38,20 @@ reservaForm.addEventListener('submit', async e => {
     console.error('Erro ao criar reserva:', error);
   }
 });
+
+import { fetchReservasPorPeriodo } from './api.js';
+
+async function buscarReservasPorPeriodo(inicio, fim) {
+  try {
+    const reservas = await fetchReservasPorPeriodo(inicio, fim);
+    // atualize seu front com as reservas recebidas
+    reservasList.innerHTML = '';
+    reservas.forEach(reserva => {
+      const div = document.createElement('div');
+      div.textContent = `Cliente: ${reserva.cliente} - Mesa: ${reserva.mesa_id} - Data: ${reserva.data_reserva} - Horário: ${reserva.horario_inicio} - Status: ${reserva.status}`;
+      reservasList.appendChild(div);
+    });
+  } catch (error) {
+    console.error('Erro ao buscar reservas por período:', error);
+  }
+}
