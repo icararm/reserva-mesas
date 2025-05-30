@@ -1,38 +1,41 @@
+<!-- public/index.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Escolha o tipo de usuário</title>
+  <title>Painel Inicial - Sistema de Reservas</title>
+  <link rel="stylesheet" href="css/style.css" />
   <style>
     body {
       font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f0f0f0;
       text-align: center;
-      padding: 50px;
     }
     h1 {
-      margin-bottom: 30px;
+      margin-bottom: 2rem;
     }
-    button {
-      margin: 10px;
-      padding: 15px 30px;
-      font-size: 18px;
-      cursor: pointer;
-      border-radius: 8px;
-      border: none;
-      background-color: #007BFF;
+    .painel-link {
+      display: inline-block;
+      margin: 1rem;
+      padding: 1.5rem 2rem;
+      background: #2d89ef;
       color: white;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 8px;
       transition: background-color 0.3s ease;
     }
-    button:hover {
-      background-color: #0056b3;
+    .painel-link:hover {
+      background: #1b5fbd;
     }
   </style>
 </head>
 <body>
-  <h1>Escolha seu tipo de usuário</h1>
-  <button onclick="location.href='atendente.html'">Atendente</button>
-  <button onclick="location.href='garcom.html'">Garçom</button>
-  <button onclick="location.href='gerente.html'">Gerente</button>
+  <h1>Sistema de Reservas - Selecione seu Perfil</h1>
+
+  <a href="atendente.html" class="painel-link">Atendente</a>
+  <a href="garcom.html" class="painel-link">Garçom</a>
+  <a href="gerente.html" class="painel-link">Gerente</a>
 </body>
 </html>

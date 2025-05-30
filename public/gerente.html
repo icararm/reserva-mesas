@@ -1,146 +1,31 @@
+<!-- public/gerente.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Relatório de Reservas</title>
+  <title>Painel do Gerente</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <h1>Painel do Gerente - Relatórios de Reservas</h1>
+  <h1>Relatórios - Gerente</h1>
 
-  <div>
-    <label for="data-inicio">Data Início:</label>
-    <input type="date" id="data-inicio" />
+  <form id="formRelatorio">
+    <label>Início: <input type="date" name="inicio" required></label>
+    <label>Fim: <input type="date" name="fim" required></label>
+    <button type="submit">Gerar Relatório</button>
+  </form>
 
-    <label for="data-fim">Data Fim:</label>
-    <input type="date" id="data-fim" />
+  <h2>Relatório</h2>
+  <pre id="resultadoRelatorio"></pre>
 
-    <label for="mesa-select">Filtrar por Mesa:</label>
-    <select id="mesa-select">
-      <option value="">Todas as Mesas</option>
-    </select>
+  <!-- relatorio de mesa-->
+  <form id="formRelatorioMesa">
+  <label>Mesa: <input type="number" name="mesa" min="1" required></label>
+  <button type="submit">Gerar Relatório por Mesa</button>
+</form>
 
-    <button id="btn-buscar">Buscar Reservas</button>
-  </div>
+<div id="resultadoRelatorioMesa"></div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Cliente</th>
-        <th>Mesa</th>
-        <th>Data</th>
-        <th>Horário</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody id="tabela-reservas-body"></tbody>
-  </table>
-
-  <script>
-    // URLs da API
-    const mesasUrl = '/mesas';
-    const reservasPeriodoUrl = '/reservas/periodo';
-    const reservasMesaUrl = '/reservas/mesa';
-
-    // Elementos do DOM
-    const mesaSelect = document.getElementById('mesa-select');
-    const btnBuscar = document.getElementById('btn-buscar');
-    const tbody = document.getElementById('tabela-reservas-body');
-
-    let mesas = [];
-
-    // Função para converter 'aaaa-mm-dd' para 'dd/mm/aaaa'
-    function formatDateToBR(dateStr) {
-      const [year, month, day] = dateStr.split('-');
-      return `${day}/${month}/${year}`;
-    }
-
-    // Carrega as mesas e preenche o select
-    async function carregarMesas() {
-      try {
-        const res = await fetch(mesasUrl);
-        if (!res.ok) throw new Error(`Erro ao buscar mesas: ${res.status}`);
-        mesas = await res.json();
-
-        mesas.forEach(mesa => {
-          const option = document.createElement('option');
-          option.value = mesa.id;
-          option.textContent = `Mesa ${mesa.id} (Capacidade: ${mesa.capacidade})`;
-          mesaSelect.appendChild(option);
-        });
-      } catch (err) {
-        alert('Erro ao carregar mesas');
-        console.error(err);
-      }
-    }
-
-    // Função principal para buscar reservas
-    async function buscarReservas() {
-      tbody.innerHTML = '';
-
-      let inicio = document.getElementById('data-inicio').value;
-      let fim = document.getElementById('data-fim').value;
-      const mesaId = mesaSelect.value;
-
-      // Converte para formato 'dd/mm/aaaa' para backend
-      if (inicio) inicio = formatDateToBR(inicio);
-      if (fim) fim = formatDateToBR(fim);
-
-      if (inicio && fim) {
-        const url = `${reservasPeriodoUrl}?inicio=${encodeURIComponent(inicio)}&fim=${encodeURIComponent(fim)}`;
-        await buscarEExibirReservas(url);
-        return;
-      }
-
-      if (mesaId) {
-        const url = `${reservasMesaUrl}/${mesaId}`;
-        await buscarEExibirReservas(url);
-        return;
-      }
-
-      alert('Por favor, selecione um período (data início e fim) ou uma mesa para buscar.');
-    }
-
-    // Busca dados da API e exibe na tabela
-    async function buscarEExibirReservas(url) {
-      try {
-        const res = await fetch(url);
-        if (!res.ok) {
-          console.error('Resposta da API não OK:', res.status, res.statusText);
-          throw new Error('Erro na resposta da API');
-        }
-        const reservas = await res.json();
-        console.log('Reservas recebidas:', reservas);
-
-        if (!reservas || reservas.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6">Nenhuma reserva encontrada.</td></tr>';
-          return;
-        }
-
-        reservas.forEach(r => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${r.id}</td>
-            <td>${r.cliente}</td>
-            <td>${r.mesa_id}</td>
-            <td>${r.data_reserva}</td>
-            <td>${r.horario_inicio}</td>
-            <td>${r.status || '-'}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-      } catch (err) {
-        alert('Erro ao buscar reservas');
-        console.error(err);
-      }
-    }
-
-    // Eventos
-    btnBuscar.addEventListener('click', buscarReservas);
-
-    // Inicializa carregando as mesas
-    carregarMesas();
-  </script>
+  <script src="js/gerente.js"></script>
 </body>
 </html>
