@@ -65,7 +65,7 @@ export function listarReservasPendentes(req, res) {
   });
 }
 
-// Confirmar reserva (Garçom)
+/*Confirmar reserva (Garçom)
 export function confirmarReserva(req, res) {
   const reservaId = req.params.id;
 
@@ -75,6 +75,31 @@ export function confirmarReserva(req, res) {
   `;
 
   db.run(sql, [reservaId], function (err) {
+    if (err) {
+      return res.status(500).json({ erro: 'Erro ao confirmar reserva.' });
+    }
+    if (this.changes === 0) {
+      return res.status(404).json({ erro: 'Reserva não encontrada ou já confirmada/cancelada.' });
+    }
+    res.json({ mensagem: 'Reserva confirmada com sucesso.' });
+  });
+}
+*/
+
+export function confirmarReserva(req, res) {
+  const reservaId = req.params.id;
+  const garcomId = req.session.userId;
+
+  if (!garcomId || req.session.userTipo !== 'garcom') {
+    return res.status(403).json({ erro: 'Apenas garçons podem confirmar reservas.' });
+  }
+
+  const sql = `
+    UPDATE reservas SET status = 'confirmada', garcom_id = ?
+    WHERE id = ? AND status = 'pendente'
+  `;
+
+  db.run(sql, [garcomId, reservaId], function (err) {
     if (err) {
       return res.status(500).json({ erro: 'Erro ao confirmar reserva.' });
     }

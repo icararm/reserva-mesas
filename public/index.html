@@ -1,4 +1,4 @@
-<!-- public/index.html -->
+<!-- public/index.html 
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -37,5 +37,55 @@
   <a href="atendente.html" class="painel-link">Atendente</a>
   <a href="garcom.html" class="painel-link">Garçom</a>
   <a href="gerente.html" class="painel-link">Gerente</a>
+</body>
+</html> -->
+
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <h1>Login</h1>
+  <form id="loginForm">
+    <label>Nome:
+      <input type="text" name="nome" required>
+    </label><br>
+    <label>Tipo:
+      <select name="tipo" required>
+        <option value="atendente">Atendente</option>
+        <option value="garcom">Garçom</option>
+        <option value="gerente">Gerente</option>
+      </select>
+    </label><br>
+    <button type="submit">Entrar</button>
+  </form>
+
+  <p>Não tem conta? <a href="cadastro.html">Cadastre-se aqui</a></p>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const dados = Object.fromEntries(formData);
+
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados),
+      });
+
+      const resultado = await res.json();
+      if (resultado.ok) {
+        window.location.href = `${resultado.tipo}.html`;
+      } else {
+        alert(resultado.erro);
+      }
+    });
+  </script>
 </body>
 </html>

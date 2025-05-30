@@ -4,6 +4,7 @@ import {
   relatorioPorMesa,
   relatorioPorGarcom,
 } from '../controllers/relatorioController.js';
+import { listarGarcons } from '../controllers/usuarioController.js';
 
 const router = express.Router();
 
@@ -15,6 +16,10 @@ router.get('/relatorios/mesa/:mesa', relatorioPorMesa);
 
 // GET /api/gerente/relatorios/garcom/:garcomId
 router.get('/relatorios/garcom/:garcomId', relatorioPorGarcom);
+
+// GET Garçom
+router.get('/garcons', listarGarcons);
+router.get('/relatorio/garcom/:garcomId', relatorioPorGarcom);
 
 export default router;
 

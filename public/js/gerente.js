@@ -66,3 +66,50 @@ formMesa.addEventListener('submit', async (e) => {
     console.error(err);
   }
 });
+
+// Parte dos Garçons
+const selectGarcom = document.getElementById('selectGarcom');
+const formRelatorioGarcom = document.getElementById('formRelatorioGarcom');
+const resultadoRelatorioGarcom = document.getElementById('resultadoRelatorioGarcom');
+
+// Carregar garçons no select ao carregar a página
+async function carregarGarcons() {
+  try {
+    const res = await fetch('/api/gerente/garcons');
+    if (!res.ok) throw new Error('Erro ao carregar garçons');
+    const garcons = await res.json();
+
+    garcons.forEach(g => {
+      const option = document.createElement('option');
+      option.value = g.id;
+      option.textContent = g.nome;
+      selectGarcom.appendChild(option);
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+carregarGarcons();
+
+// Ao enviar o formulário do relatório por garçom
+formRelatorioGarcom.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const garcomId = selectGarcom.value;
+  if (!garcomId) {
+    alert('Selecione um garçom');
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/gerente/relatorio/garcom/${garcomId}`);
+    if (!res.ok) throw new Error('Erro ao gerar relatório por garçom');
+    const data = await res.json();
+
+    resultadoRelatorioGarcom.innerHTML = criarTabela(data);
+  } catch (err) {
+    alert(err.message);
+    console.error(err);
+  }
+});

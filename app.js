@@ -7,6 +7,7 @@ import cors from 'cors';
 import atendenteRoutes from './routes/atendente.js';
 import garcomRoutes from './routes/garcom.js';
 import gerenteRoutes from './routes/gerente.js';
+import usuarioRoutes from './routes/usuario.js';
 
 // Configurações de diretório
 const __filename = fileURLToPath(import.meta.url);
@@ -22,11 +23,20 @@ app.use(express.urlencoded({ extended: true })); // Parse form data
 
 app.use(express.static('public'));
 
+// configuração da sessão
+import session from 'express-session';
+
+app.use(session({
+  secret: 'chave-secreta',
+  resave: false,
+  saveUninitialized: false
+}));
+
 // Rotas
 app.use('/api/atendente', atendenteRoutes);
 app.use('/api/garcom', garcomRoutes);
 app.use('/api/gerente', gerenteRoutes);
-
+app.use('/api', usuarioRoutes);
 
 // Iniciar servidor
 app.listen(PORT, () => {
