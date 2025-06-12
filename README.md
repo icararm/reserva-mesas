@@ -96,8 +96,20 @@ http://localhost:3000/
   Agora a aplicação está pronta para uso!
 
 
-  
-## 4. Justificativa da Abordagem de Comunicação
+
+## 4. Teste do projeto
+
+# Login 
+
+| Nome      | Tipo      | Permissões                                                                 |
+|-----------|-----------|-----------------------------------------------------------------------------|
+| Atendente | Atendente | Cadastra e cancela reservas                                                 |
+| Garçom    | Garçom    | Confirma reservas                                                           |
+| Gerente   | Gerente   | Gera relatórios por período, de determinada mesa e por determinado garçom   |
+
+ 
+## 5. Justificativa da Abordagem de Comunicação
+
    A aplicação utiliza API RESTful sobre protocolo HTTP para comunicação entre cliente e servidor, por ser uma abordagem:
 
 - Simples e compatível com diversas plataformas e interfaces.
