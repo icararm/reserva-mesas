@@ -1,23 +1,99 @@
 # reserva-mesas
 Relátorio 
 
-Integrantes da Equipe:
-Caio Sento Sé
-Fernando Rodrigues
-Gabriel Gomes
-Guilherme Andrade
-Icara Rocha
-Matheus Vianelo
+1. Integrantes da Equipe
 
-Requisitos de Software:
-  Linguagem de Programação 
-    JavaScript (Node.js)
-  Bibliotecas e Frameworks Utilizados
-    Back-end:
-    Express — framework minimalista para criação da API REST.
-    sqlite3 — biblioteca para integração com banco de dados SQLite.
-    Cors — middleware para habilitar o compartilhamento de recursos entre front-end e back-end.
-    Body-parser — para lidar com dados JSON enviados nas requisições.
-    
+Ícara da Rocha Marques - 12725161283
+
+Caio Sento Sé da Fonseca Matos- 12724122482
+
+Guilherme Carneiro Andrade - 12725157330
+
+Marcus Vinicius Belo - 1272410190
+
+Fernando Rodrigues Pinheiro Neto - 12724131828
+
+Gabriel Gomes Paixão Souza - 12724128887
+
+Matheus Vianelo de Carvalho - 12724121616
+
+2. Requisitos de Software
+
+- Linguagem de Programação: JavaScript (ES6+)
+
+- Ambiente de Execução: Node.js (versão 14 ou superior)
+
+- Banco de Dados: SQLite3
+
+| Biblioteca    | Função                                                           |
+| ------------- | ---------------------------------------------------------------- |
+| `express`     | Framework para criação da API REST                               |
+| `sqlite3`     | Integração com banco de dados SQLite                             |
+| `nodemon`     | Reinicialização automática do servidor durante o desenvolvimento |
+| `body-parser` | Middleware para tratar JSON nas requisições HTTP     |
+
+3. Instruções para Instalação e Execução (Download ZIP)
+   
+  - Instalar o Node.js
+  Acesse: https://nodejs.org/
   
+  Baixe a versão LTS (Recomendada)
+  
+  Instale normalmente (clicando em “Avançar” até o final)
+  
+  - Baixar o projeto
+  Vá até o repositório no GitHub.
+  
+  Clique em Code > Download ZIP.
+  
+  Salve e extraia o arquivo ZIP em uma pasta no seu computador.
+
+  - Abrir o terminal na pasta do projeto
+  Entre na pasta extraída.
+  
+  Clique com o botão direito em um espaço vazio da pasta.
+  
+  Escolha Abrir no Terminal ou Abrir no PowerShell.
+
+  - Instalar as dependências
+  No terminal, digite:
+  
+  npm install
+  Isso vai instalar tudo que o projeto precisa para funcionar. 
+
+  - Banco de dados
+  Se o arquivo reservas.db já estiver na pasta do projeto, você não precisa criar o banco de dados. Pode pular esta etapa.
+  
+  Se não tiver, execute:
+  
+  node src/database/db.js
+  para criar o banco de dados e as tabelas.
+
+  - Iniciar a aplicação
+  No terminal, rode:
+
+  npm start
+  
+  Aguarde a mensagem indicando que o servidor está rodando:
+  
+  Servidor rodando em http://localhost:3000
+
+  - Acessar o sistema
+  Abra o navegador e digite:
+
+  http://localhost:3000/
+  Agora a aplicação está pronta para uso!
+  
+4. Justificativa da Abordagem de Comunicação
+   A aplicação utiliza API RESTful sobre protocolo HTTP para comunicação entre cliente e servidor, por ser uma abordagem:
+
+- Simples e compatível com diversas plataformas e interfaces.
+
+- De fácil teste usando ferramentas como Postman ou Insomnia.
+
+- Escalável, permitindo que o sistema evolua facilmente.
+
+- Alinhada com boas práticas amplamente adotadas no mercado de desenvolvimento web.
+
+ 
     
