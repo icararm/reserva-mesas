@@ -83,8 +83,21 @@ Matheus Vianelo de Carvalho - 12724121616
 
   http://localhost:3000/
   Agora a aplicação está pronta para uso!
-  
-4. Justificativa da Abordagem de Comunicação
+
+4. Teste do projeto
+
+- Login 
+
+Nome: Atendente   |   Tipo: Atendente
+➤ Cadastra e cancela reservas
+
+Nome: Garçom   |   Tipo: Garçom
+➤ Confirma reservas
+
+Nome: Gerente   |   Tipo: Gerente
+➤ Gera relatórios por período, de determinada mesa e por determinado garçom
+ 
+5. Justificativa da Abordagem de Comunicação
    A aplicação utiliza API RESTful sobre protocolo HTTP para comunicação entre cliente e servidor, por ser uma abordagem:
 
 - Simples e compatível com diversas plataformas e interfaces.
