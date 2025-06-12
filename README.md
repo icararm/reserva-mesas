@@ -32,10 +32,57 @@ Matheus Vianelo de Carvalho - 12724121616
 | `nodemon`     | Reinicialização automática do servidor durante o desenvolvimento |
 | `body-parser` | Middleware para tratar JSON nas requisições HTTP     |
 
-3. Instruções para Instalação e Execução
-  Pré-requisitos:
+3. Instruções para Instalação e Execução (Download ZIP)
+  1. Instalar o Node.js
+  Acesse: https://nodejs.org/
   
-   
+  Baixe a versão LTS (Recomendada)
+  
+  Instale normalmente (clicando em “Avançar” até o final)
+  
+  2. Baixar o projeto
+  Vá até o repositório no GitHub.
+  
+  Clique em Code > Download ZIP.
+  
+  Salve e extraia o arquivo ZIP em uma pasta no seu computador.
+
+  3. Abrir o terminal na pasta do projeto
+  Entre na pasta extraída.
+  
+  Clique com o botão direito em um espaço vazio da pasta.
+  
+  Escolha Abrir no Terminal ou Abrir no PowerShell.
+
+  4. Instalar as dependências
+  No terminal, digite:
+  
+  npm install
+  Isso vai instalar tudo que o projeto precisa para funcionar. 
+
+  5. Banco de dados
+  Se o arquivo reservas.db já estiver na pasta do projeto, você não precisa criar o banco de dados. Pode pular esta etapa.
+  
+  Se não tiver, execute:
+  
+  node src/database/db.js
+  para criar o banco de dados e as tabelas.
+
+  6. Iniciar a aplicação
+  No terminal, rode:
+
+  npm start
+  
+  Aguarde a mensagem indicando que o servidor está rodando:
+  
+  Servidor rodando em http://localhost:3000
+
+  7. Acessar o sistema
+  Abra o navegador e digite:
+
+  http://localhost:3000/
+  Agora a aplicação está pronta para uso!
+  
 5. Justificativa da Abordagem de Comunicação
    A aplicação utiliza API RESTful sobre protocolo HTTP para comunicação entre cliente e servidor, por ser uma abordagem:
 
