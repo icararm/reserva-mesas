@@ -65,27 +65,6 @@ export function listarReservasPendentes(req, res) {
   });
 }
 
-/*Confirmar reserva (Garçom)
-export function confirmarReserva(req, res) {
-  const reservaId = req.params.id;
-
-  const sql = `
-    UPDATE reservas SET status = 'confirmada'
-    WHERE id = ? AND status = 'pendente'
-  `;
-
-  db.run(sql, [reservaId], function (err) {
-    if (err) {
-      return res.status(500).json({ erro: 'Erro ao confirmar reserva.' });
-    }
-    if (this.changes === 0) {
-      return res.status(404).json({ erro: 'Reserva não encontrada ou já confirmada/cancelada.' });
-    }
-    res.json({ mensagem: 'Reserva confirmada com sucesso.' });
-  });
-}
-*/
-
 export function confirmarReserva(req, res) {
   const reservaId = req.params.id;
   const garcomId = req.session.userId;

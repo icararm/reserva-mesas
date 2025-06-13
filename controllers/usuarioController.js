@@ -21,23 +21,6 @@ export function cadastrarUsuario(req, res) {
   });
 }
 
-/* Login
-export function loginUsuario(req, res) {
-  const { nome, tipo } = req.body;
-
-  if (!nome || !tipo) {
-    return res.status(400).json({ erro: 'Nome e tipo são obrigatórios.' });
-  }
-
-  const sql = `SELECT * FROM usuarios WHERE nome = ? AND tipo = ?`;
-  db.get(sql, [nome, tipo], (err, row) => {
-    if (err) return res.status(500).json({ erro: 'Erro ao buscar usuário.' });
-    if (!row) return res.status(401).json({ erro: 'Usuário não encontrado.' });
-
-    res.json({ ok: true, tipo: row.tipo });
-  });
-}
-*/
 export function loginUsuario(req, res) {
   const { nome, tipo } = req.body;
 

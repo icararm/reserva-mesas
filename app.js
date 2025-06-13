@@ -18,8 +18,8 @@ const PORT = 3000;
 
 // Middlewares
 app.use(cors());
-app.use(express.json()); // Parse JSON
-app.use(express.urlencoded({ extended: true })); // Parse form data
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true })); 
 
 app.use(express.static('public'));
 
